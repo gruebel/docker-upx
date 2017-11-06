@@ -1,8 +1,7 @@
 FROM alpine:3.6 as builder
 
 # devel branch
-#ENV UPX_COMMIT_HASH=0430e79 \
-ENV UPX_COMMIT_HASH=1f929d4 \
+ENV UPX_COMMIT_HASH=0430e79 \
     LDFLAGS=-static
 
 # download source and compile
@@ -25,7 +24,6 @@ RUN /upx/src/upx.out \
     /upx/src/upx.out
 
 FROM busybox:1.27.2
-#FROM alpine:3.6
 
 COPY --from=builder /usr/bin/upx /usr/bin/upx
 
