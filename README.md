@@ -1,8 +1,12 @@
-# Intro
+# UPX
+
+[![Build Status](https://travis-ci.org/gruebel/docker-upx.svg?branch=master)](https://travis-ci.org/gruebel/docker-upx)
+
+## Overview
 A small image for usage in multi-stage Docker builds to compress binary files like Go.
 Based on the official busybox image and build via multi-stage build himself to make the image as small as possible **~1.7MB**
 
-# Usage
+## Usage
 For this example I used the official example of the Docker documentation for [multi-stage builds](https://docs.docker.com/engine/userguide/eng-image/multistage-build/#name-your-build-stages)
 
 ```docker

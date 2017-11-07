@@ -7,7 +7,8 @@ services:
 
 env:
   global:
-    - DOCKER_REPO=$DOCKER_USER/upx
+    - DOCKER_IMAGE_NAME=upx
+    - DOCKER_REPO=$DOCKER_USER/$DOCKER_IMAGE_NAME
 
 before_install:
   - sudo apt-get update
@@ -15,9 +16,9 @@ before_install:
   - docker --version
 
 script:
-  - docker build -t upx-test .
+  - docker build -t $DOCKER_IMAGE_NAME-test .
 
 after_success:
   - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-  - docker tag upx-test $REPO:latest
-  - docker push $REPO:latest
+  - docker tag $DOCKER_IMAGE_NAME-test $DOCKER_REPO:latest
+  - docker push $DOCKER_REPO:latest
