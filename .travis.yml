@@ -5,6 +5,10 @@ language: generic
 services:
   - docker
 
+env:
+  global:
+    - DOCKER_REPO=$DOCKER_USER/upx
+
 before_install:
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
@@ -12,3 +16,8 @@ before_install:
 
 script:
   - docker build -t upx-test .
+
+after_success:
+  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+  - docker tag upx-test $REPO:latest
+  - docker push $REPO:latest
