@@ -1,0 +1,12 @@
+sudo: required
+
+language: generic
+
+services:
+  - docker
+
+before_install:
+  - docker --version
+
+script:
+  - docker build -t upx-test .
