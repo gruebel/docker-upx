@@ -9,6 +9,7 @@ env:
   global:
     - DOCKER_IMAGE_NAME=upx
     - DOCKER_REPO=$DOCKER_USER/$DOCKER_IMAGE_NAME
+    - GIT_COMMIT_HASH=0430e79
 
 before_install:
   - sudo apt-get update
@@ -17,16 +18,16 @@ before_install:
 
 script:
   # build Docker image
-  - docker build -t $DOCKER_IMAGE_NAME-test .
+  - docker build --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH} -t ${DOCKER_IMAGE_NAME}-test .
   # run test with hugo binaries
   - wget https://github.com/gohugoio/hugo/releases/download/v0.30.2/hugo_0.30.2_Linux-64bit.tar.gz
   - tar xvpf hugo_0.30.2_Linux-64bit.tar.gz
-  - docker run --rm -w $PWD -v $PWD:$PWD upx-test --best --lzma -o hugo_upx hugo
+  - docker run --rm -w ${PWD} -v ${PWD}:${PWD} ${DOCKER_IMAGE_NAME}-test --best --lzma -o hugo_upx hugo
   - time ./hugo version
   - time ./hugo_upx version
   - ls -lah hugo hugo_upx
 
 after_success:
-  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-  - docker tag $DOCKER_IMAGE_NAME-test $DOCKER_REPO:latest
-  - docker push $DOCKER_REPO:latest
+  - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
+  - docker tag ${DOCKER_IMAGE_NAME}-test ${DOCKER_REPO}:dev-${GIT_COMMIT_HASH}
+  - docker push ${DOCKER_REPO}:dev-${GIT_COMMIT_HASH}
