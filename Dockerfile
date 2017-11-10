@@ -1,3 +1,4 @@
+# build stage
 FROM alpine:3.6 as builder
 
 # devel branch
@@ -21,7 +22,13 @@ RUN /upx/src/upx.out \
     -o /usr/bin/upx \
     /upx/src/upx.out
 
+# final stage
 FROM busybox:1.27.2
+
+ARG BUILD_DATE
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+      org.label-schema.schema-version="1.0"
 
 COPY --from=builder /usr/bin/upx /usr/bin/upx
 
