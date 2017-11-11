@@ -9,31 +9,29 @@ env:
   global:
     - PROJECT_NAME=upx
     - DOCKER_IMAGE_NAME=$DOCKER_USER/$PROJECT_NAME
-    - GIT_COMMIT_HASH=0430e79
 
 before_install:
   - sudo apt-get update
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
   - docker --version
 
-jobs:
+matrix:
   include:
-    - stage: build docker image
-      script:
-        - |
-          docker build \
-          --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH} \
-          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-          -t ${DOCKER_IMAGE_NAME}:test \
-          .
-        - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
-        - docker push ${DOCKER_IMAGE_NAME}:test
-    - stage: test
-      script: DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/golang.sh
-    - stage: test
-      script: DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/rust.sh
+    - env: DOCKER_IMAGE_VERSION=edge GIT_COMMIT_HASH=HEAD
+    - env: DOCKER_IMAGE_VERSION=dev-$GIT_COMMIT_HASH GIT_COMMIT_HASH=0430e79
 
-after_success:
+script:
+  # build Docker image
+  - |
+    docker build \
+    --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH} \
+    --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    -t ${DOCKER_IMAGE_NAME}:test \
+    .
+  # run tests with Golang & Rust binaries
+  - DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/golang.sh
+  - DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/rust.sh
+  # push Docker image
   - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
-  - docker tag ${DOCKER_IMAGE_NAME}:test ${DOCKER_IMAGE_NAME}:dev-${GIT_COMMIT_HASH}
-  - docker push ${DOCKER_IMAGE_NAME}:dev-${GIT_COMMIT_HASH}
+  - docker tag ${DOCKER_IMAGE_NAME}:test ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}
+  - docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}
