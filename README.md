@@ -4,7 +4,7 @@
 [![Docker Automated build](https://img.shields.io/docker/automated/gruebel/upx.svg)](https://hub.docker.com/r/gruebel/upx/builds/)
 
 ## Overview
-A small image for usage in multi-stage Docker builds to compress binary files like Go.
+A small image for usage in multi-stage Docker builds to compress binary files like Go or Rust.
 Based on the official busybox image and build via multi-stage build himself to make the image as small as possible **~1.7MB**
 For more information on the great tool UPX check out their [GitHub project](https://github.com/upx/upx)!
 

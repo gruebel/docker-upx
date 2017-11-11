@@ -11,8 +11,8 @@ printf "${GREEN}\n[Test] check compression functionality + duration\n${NC}"
 time -p docker run --rm -w ${PWD} -v ${PWD}:${PWD} ${DOCKER_IMAGE_VERSION_NAME} --best --lzma -o fd_upx fd
 
 printf "${GREEN}\n[Test] check execution of Golang binaries + duration\n${NC}"
-time -p ./fd '.*\.jar' /
-time -p ./fd_upx '.*\.jar' /
+time -p ./fd 'Dockerfile.*' /
+time -p ./fd_upx 'Dockerfile.*' /
 
 printf "${GREEN}\n[Test] check file size\n${NC}"
 ls -lah fd fd_upx

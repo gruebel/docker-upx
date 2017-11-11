@@ -17,8 +17,8 @@ before_install:
 
 matrix:
   include:
-    - env: DOCKER_IMAGE_VERSION=edge GIT_COMMIT_HASH=HEAD
-    - env: DOCKER_IMAGE_VERSION=dev-$GIT_COMMIT_HASH GIT_COMMIT_HASH=0430e79
+    - env: GIT_COMMIT_HASH=HEAD DOCKER_IMAGE_VERSION=edge
+    - env: GIT_COMMIT_HASH=0430e79 DOCKER_IMAGE_VERSION=dev-$GIT_COMMIT_HASH
 
 script:
   # build Docker image
