@@ -1,0 +1,37 @@
+sudo: required
+
+language: generic
+
+services:
+  - docker
+
+env:
+  global:
+    - PROJECT_NAME=upx
+    - DOCKER_IMAGE_NAME=$DOCKER_USER/$PROJECT_NAME
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - docker --version
+
+matrix:
+  include:
+    - env: GIT_COMMIT_HASH=HEAD DOCKER_IMAGE_VERSION=edge
+    - env: GIT_COMMIT_HASH=0430e79 DOCKER_IMAGE_VERSION=dev-$GIT_COMMIT_HASH
+
+script:
+  # build Docker image
+  - |
+    docker build \
+    --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH} \
+    --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    -t ${DOCKER_IMAGE_NAME}:test \
+    .
+  # run tests with Golang & Rust binaries
+  - DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/golang.sh
+  - DOCKER_IMAGE_VERSION_NAME=${DOCKER_IMAGE_NAME}:test ./tests/rust.sh
+  # push Docker image
+  - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
+  - docker tag ${DOCKER_IMAGE_NAME}:test ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}
+  - docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_VERSION}

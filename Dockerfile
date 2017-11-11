@@ -1,8 +1,9 @@
+# build stage
 FROM alpine:3.6 as builder
 
 # devel branch
-ENV UPX_COMMIT_HASH=0430e79 \
-    LDFLAGS=-static
+ARG UPX_COMMIT_HASH=HEAD
+ENV LDFLAGS=-static
 
 # download source and compile
 RUN apk add --no-cache \
@@ -11,11 +12,9 @@ RUN apk add --no-cache \
     ucl-dev \
     zlib-dev \
  && git clone -b devel --recursive https://github.com/upx/upx.git /upx \
- && cd /upx \
- && git reset --hard ${UPX_COMMIT_HASH} \
- && cd /upx/src \
- && sed -i 's/ -O2/ /' Makefile \
- && make -j10 upx.out CHECK_WHITESPACE=
+ && git -C /upx reset --hard "${UPX_COMMIT_HASH}" \
+ && sed -i 's/ -O2/ /' /upx/src/Makefile \
+ && make -j10 -C /upx/src upx.out CHECK_WHITESPACE=
 
 # compress himself; absolutley barbaric ;)
 RUN /upx/src/upx.out \
@@ -23,7 +22,13 @@ RUN /upx/src/upx.out \
     -o /usr/bin/upx \
     /upx/src/upx.out
 
+# final stage
 FROM busybox:1.27.2
+
+ARG BUILD_DATE
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+      org.label-schema.schema-version="1.0"
 
 COPY --from=builder /usr/bin/upx /usr/bin/upx
 
