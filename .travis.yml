@@ -21,10 +21,10 @@ jobs:
     - stage: build docker image
       script:
         - |
-          docker build
-          --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH}
-          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
-          -t ${DOCKER_IMAGE_NAME}:test
+          docker build \
+          --build-arg UPX_COMMIT_HASH=${GIT_COMMIT_HASH} \
+          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+          -t ${DOCKER_IMAGE_NAME}:test \
           .
         - docker login -u "${DOCKER_USER}" -p "${DOCKER_PASS}"
         - docker push ${DOCKER_IMAGE_NAME}:test
