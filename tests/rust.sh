@@ -10,7 +10,7 @@ tar xpf fd.tar.gz --strip-components=1
 printf "${GREEN}\n[Test] check compression functionality + duration\n${NC}" 
 time -p docker run --rm -w ${PWD} -v ${PWD}:${PWD} ${DOCKER_IMAGE_VERSION_NAME} --best --lzma -o fd_upx fd
 
-printf "${GREEN}\n[Test] check execution of Golang binaries + duration\n${NC}"
+printf "${GREEN}\n[Test] check execution of Rust binaries + duration\n${NC}"
 time -p ./fd 'Dockerfile.*' /
 time -p ./fd_upx 'Dockerfile.*' /
 
