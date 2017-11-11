@@ -1,0 +1,35 @@
+# build stage
+FROM alpine:3.6 as builder
+
+# devel branch
+ARG UPX_VERSION=3.94
+ENV LDFLAGS=-static
+
+# download source and compile
+RUN apk add --no-cache \
+    build-base \
+    libressl \
+    ucl-dev \
+    zlib-dev \
+ && wget -O /upx.tar.xz https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-src.tar.xz \
+ && tar xvpf /upx.tar.xz \
+ && sed -i 's/ -O2/ /' /upx-${UPX_VERSION}-src/src/Makefile \
+ && make -j10 -C /upx-${UPX_VERSION}-src/src UPX_LZMADIR=/ upx.out CHECK_WHITESPACE=
+
+# compress himself; absolutley barbaric ;)
+RUN /upx-${UPX_VERSION}-src/src/upx.out \
+    --lzma \
+    -o /usr/bin/upx \
+    /upx-${UPX_VERSION}-src/src/upx.out
+
+# final stage
+FROM busybox:1.27.2
+
+ARG BUILD_DATE
+
+LABEL org.label-schema.build-date=${BUILD_DATE} \
+      org.label-schema.schema-version="1.0"
+
+COPY --from=builder /usr/bin/upx /usr/bin/upx
+
+ENTRYPOINT ["/usr/bin/upx"]
